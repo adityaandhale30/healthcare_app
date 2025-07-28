@@ -9,6 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  get: ^4.6.5
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  lottie: ^2.6.0
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
