@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthController extends GetxController {
@@ -17,6 +18,25 @@ class AuthController extends GetxController {
         ),
       ].obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    initAuth();
+  }
+
+  Future<void> initAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    if (userId != null) {
+      final user = users.firstWhereOrNull((u) => u.id == userId);
+      if (user != null) {
+        currentUser.value = user;
+        isLoggedIn.value = true;
+        update();
+      }
+    }
+  }
+
   void login(String email, String password) async {
     isLoading.value = true;
     await Future.delayed(const Duration(seconds: 1));
@@ -26,6 +46,8 @@ class AuthController extends GetxController {
     if (user != null) {
       currentUser.value = user;
       isLoggedIn.value = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('userId', user.id);
       update();
     }
     isLoading.value = false;
@@ -43,13 +65,17 @@ class AuthController extends GetxController {
     users.add(user);
     currentUser.value = user;
     isLoggedIn.value = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userId', user.id);
     update();
     isLoading.value = false;
   }
 
-  void logout() {
+  void logout() async {
     currentUser.value = null;
     isLoggedIn.value = false;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
     update();
   }
 }
